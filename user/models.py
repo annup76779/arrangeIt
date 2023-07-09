@@ -96,7 +96,7 @@ class MemberManager(UserManager):
 
 
 class MemberUser(User):
-    base_role = User.Role.ORG
+    base_role = User.Role.MEMBER
 
     objects = MemberManager()
 
