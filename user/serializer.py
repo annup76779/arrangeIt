@@ -10,7 +10,7 @@ class OrgSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         obj = self.Meta.model.objects.create_user(**validated_data, first_name=self.context.get("first_name"))
-        # if the new user is not a organization
+        # if the new user is not an organization
         if obj.role != User.Role.ORG:
             return obj
         # generating the join code when the new organization user is registered
@@ -47,21 +47,4 @@ class MemberSerializer(serializers.ModelSerializer):
                 return instance
             instance.member = join_obj.user
         return instance
-
-class RoleSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Role
-        fields = ('id', 'name', 'add_time_table', 'update_status')
-
-    def create(self, validated_data):
-        add_time_table_value = validated_data.get('add_time_table')
-        if add_time_table_value and add_time_table_value.lower() not in ['1', 'on']:
-            validated_data['update_status'] = False
-
-        update_status_value = validated_data.get('update_status')
-        if update_status_value and update_status_value.lower() not in ['1', 'on']:
-            validated_data['add_time_table'] = False
-
-        return super().create(validated_data)
-    
 

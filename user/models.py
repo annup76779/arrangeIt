@@ -108,6 +108,8 @@ class MemberUser(User):
 
 
 class Role(models.Model):
+    organization = models.ForeignKey(OrganizationUser, on_delete=models.CASCADE, related_name="created_role")
     name = models.CharField(max_length=255)
     add_time_table = models.BooleanField(default=False)
     update_status = models.BooleanField(default=False)
+    date_of_creating = models.DateTimeField(auto_now_add=True)

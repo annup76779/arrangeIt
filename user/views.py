@@ -1,6 +1,9 @@
+from datetime import timedelta
+
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from .helper import get_tokens_for_user
 from .serializer import *
 
 
@@ -19,6 +22,25 @@ class OrganizerRegisterView(APIView):
             return Response({"error": str(srlz.errors)}, status=500)
 
 
+class LoginAPI(APIView):
+    def post(self, request):
+        try:
+            email = request.data.get('email')
+            password = request.data.get('password')
+
+            try:
+                user = User.objects.get(email=email, role__in=[1, 2])
+                if user.check_password(password):
+                    tokens = get_tokens_for_user(user)
+                    return Response(tokens)
+                else:
+                    return Response({"msg": "Wrong password"})
+            except User.DoesNotExist:
+                return Response({"msg": "No user member or organization."})
+        except Exception as error:
+            return Response({"error": str(error)}, status=500)
+
+
 class ManagerRegisterView(APIView):
     def post(self, request):
         try:
@@ -30,4 +52,5 @@ class ManagerRegisterView(APIView):
                 return Response({"error": str(srlz.errors)}, status=500)
         except Exception as error:
             return Response({"error": str(error)}, status=500)
+
 
