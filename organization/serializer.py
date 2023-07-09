@@ -11,5 +11,3 @@ class OrgRoleSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return self.Meta.model.objects.create(**validated_data, organization=self.context.pop("user"))
-
-

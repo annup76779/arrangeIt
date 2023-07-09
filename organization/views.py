@@ -4,7 +4,9 @@ from rest_framework.views import APIView
 
 from organization.serializer import OrgRoleSerializer
 from user.customer_permission import IsOrgAuthenticated
-from user.models import Role
+from user.models import MemberUser, Role
+from user.serializer import MemberSerializer
+from rest_framework.pagination import PageNumberPagination
 
 
 class OrgRolesAPI(APIView):
@@ -52,3 +54,15 @@ class OrgRoleViewAPI(generics.ListAPIView):
     def get_queryset(self):
         user = self.request.user
         return Role.objects.filter(organization=user)
+
+
+class CustomPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+    
+
+class MemberListAPI(generics.ListAPIView):
+    serializer_class = MemberSerializer
+    queryset = MemberUser.objects.all()
+    pagination_class = CustomPagination

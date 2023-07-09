@@ -47,4 +47,3 @@ class MemberSerializer(serializers.ModelSerializer):
                 return instance
             instance.member = join_obj.user
         return instance
-
