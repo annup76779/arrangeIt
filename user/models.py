@@ -107,4 +107,7 @@ class MemberUser(User):
         return "MEMBER: %s" % self.email
 
 
-
+class Role(models.Model):
+    name = models.CharField(max_length=255)
+    add_time_table = models.BooleanField(default=False)
+    update_status = models.BooleanField(default=False)
