@@ -113,3 +113,6 @@ class Role(models.Model):
     add_time_table = models.BooleanField(default=False)
     update_status = models.BooleanField(default=False)
     date_of_creating = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('organization', 'name')
