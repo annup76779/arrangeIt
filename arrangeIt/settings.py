@@ -30,7 +30,7 @@ with open(path, "r") as conf_file:
 
 SECRET_KEY = config.get('SECRET_KEY')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["143.244.129.24", "localhost", "127.0.0.1"]
 
 
 # Application definition
