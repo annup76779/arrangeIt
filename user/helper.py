@@ -8,5 +8,7 @@ def get_tokens_for_user(user):
         'refresh': str(refresh),
         'access': str(refresh.access_token),
         'user_role': user.role,
-        'expires_in': refresh.lifetime
+        'expires_in': refresh.lifetime,
+        "email": user.email,
+        "name": user.first_name
     }
