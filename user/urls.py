@@ -6,8 +6,8 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
     path("org/register", views.OrganizerRegisterView.as_view()),
-    # path("member", views.MemberLoginView.as_view()),
-]
+        path("member/register", views.ManagerRegisterView.as_view()),
+    ]
 
 
 
