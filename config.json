@@ -1,0 +1,11 @@
+{
+  "DATABASE":{
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": "arrangeIt",
+        "USER": "root",
+        "PASSWORD": "8Ctz:U6wNZ3>",
+        "HOST": "localhost",
+        "PORT": "3306"
+  },
+    "SECRET_KEY": "django-insecure-lxwp_!k2rbm7kybqse#0caz36bb(vd*euuabz)&vzkmd@a1l_b"
+}
