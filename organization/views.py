@@ -48,6 +48,7 @@ class OrgRolesAPI(APIView):
 
 
 class OrgRoleViewAPI(generics.ListAPIView):
+    permission_classes = [IsOrgAuthenticated]
     serializer_class = OrgRoleSerializer
 
     def get_queryset(self):
@@ -56,6 +57,7 @@ class OrgRoleViewAPI(generics.ListAPIView):
 
 
 class JoinRequestAPI(APIView):
+    permission_classes = [IsOrgAuthenticated]
     def get(self, request):
         page = request.GET.get('page', 0)
         members = MemberUser.objects.filter(is_active=False, member=request.user).all()[page*10: page*10+10]
@@ -92,6 +94,7 @@ class JoinRequestAPI(APIView):
 
 
 class OrgMemberAPI(APIView):
+    permission_classes = [IsOrgAuthenticated]
     def get(self, request):
         page = request.GET.get('page', 0)
         members = MemberUser.objects.filter(is_active=True, is_staff=True, member=request.user)[page*10: page*10+10]

@@ -75,8 +75,8 @@ class MemberProfileSerializer(serializers.ModelSerializer):
             instance.member = join_obj.user
 
         if self.context.get("role_id"):
+            old_role = instance.role_in_org.role
             try:
-                old_role = instance.role_in_org.role
                 instance.role_in_org.delete()
                 new_role = Role.objects.get(id=self.context.get("role_id"))
                 Member_role_in_org.objects.create(member=instance, role=new_role)
@@ -89,22 +89,28 @@ class MemberProfileSerializer(serializers.ModelSerializer):
         return instance
 
 
+class JoinCodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrgJoinCodes
+        fields = ["join_code", ]
+
+
+class OrgProfileSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = OrganizationUser
+        fields = ("email", "first_name", "role")
+        read_only_fields = ["role"]
+
+    def to_representation(self, instance):
+        output = super().to_representation(instance)
+        output.update({"join_code": instance.join_code.join_code})
+        return output
+
+
 class NoticeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notice
         fields = ('id', 'title', 'content', 'published_at')
         read_only_fields = ('id', 'published_at')
 
-
-class UserProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('first_name', 'email',  )
-
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        if instance.role in [User.Role.ORG, User.Role.MEMBER]:
-            org_join_code = OrgJoinCodes.objects.filter(user=instance).first()
-            if org_join_code:
-                data['joining_code'] = org_join_code.join_code
-        return data
