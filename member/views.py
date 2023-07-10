@@ -34,7 +34,7 @@ class ScheduleAPIView(generics.ListCreateAPIView):
         date = datetime.now(tz=timezone("Asia/Kolkata"))
         start = datetime(date.year, date.month, date.day, tzinfo=timezone("Asia/Kolkata"))
         end = start + timedelta(days=1)
-        return Schedule.objects.filter(member=self.request.user, start__range=[start, end]).order_by("-start")
+        return Schedule.objects.filter(member__member=self.request.user.member, start__range=[start, end]).order_by("-start")
 
     def create(self, request, *args, **kwargs):
         data = dict(**request.data)
@@ -56,5 +56,5 @@ class ScheduleDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
         date = datetime.now(tz=timezone("Asia/Kolkata"))
         start = datetime(date.year, date.month, date.day, tzinfo=timezone("Asia/Kolkata"))
         end = start + timedelta(days=1)
-        return Schedule.objects.filter(member=self.request.user, start__range=[start, end]).order_by("-start")
+        return Schedule.objects.filter(member__member=self.request.user.member, start__range=[start, end]).order_by("-start")
 
