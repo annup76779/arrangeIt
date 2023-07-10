@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from organization.serializer import OrgRoleSerializer
 from user.customer_permission import IsOrgAuthenticated
 from user.models import MemberUser, Notice, Role
-from user.serializer import MemberSerializer
+from user.serializer import MemberSerializer, NoticeSerializer
 
 
 class OrgRolesAPI(APIView):
@@ -99,3 +99,23 @@ class OrgMemberAPI(APIView):
         srlz = MemberSerializer(members, many=True)
         return Response({"members": srlz.data, "current_page": page, "per_page": 10, "total_page": count})
 
+
+class NoticeListAPI(generics.ListCreateAPIView):
+    serializer_class = NoticeSerializer
+    permission_classes = [IsOrgAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Notice.objects.filter(organization=user.organization)
+
+    def perform_create(self, serializer):
+        serializer.save(organization=self.request.user.organization)
+
+
+class NoticeDetailAPI(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = NoticeSerializer
+    permission_classes = [IsOrgAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Notice.objects.filter(organization=user.organization)

@@ -52,6 +52,17 @@ class MemberSerializer(serializers.ModelSerializer):
         }
         return output
 
+
+class MemberProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MemberUser
+        fields = ("email", "first_name")
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['role'] = instance.role_in_org.role.name.title()
+        return data
+
     def update(self, instance, validated_data):
         instance = super().update(instance, validated_data)
 
@@ -70,9 +81,30 @@ class MemberSerializer(serializers.ModelSerializer):
                 new_role = Role.objects.get(id=self.context.get("role_id"))
                 Member_role_in_org.objects.create(member=instance, role=new_role)
             except Role.DoesNotExist:
-                self.context["error_message"] = "Role requested is not registed with the org."
+                self.context["error_message"] = "Role requested is not registered with the org."
                 Member_role_in_org.objects.create(member=instance, role=old_role)
             except Exception as error:
                 self.context["error_message"] = str(error)
                 Member_role_in_org.objects.create(member=instance, role=old_role)
         return instance
+
+
+class NoticeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notice
+        fields = ('id', 'title', 'content', 'published_at')
+        read_only_fields = ('id', 'published_at')
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('first_name', 'email',  )
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.role in [User.Role.ORG, User.Role.MEMBER]:
+            org_join_code = OrgJoinCodes.objects.filter(user=instance).first()
+            if org_join_code:
+                data['joining_code'] = org_join_code.join_code
+        return data
