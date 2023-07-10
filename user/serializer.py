@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from user.models import OrganizationUser, MemberUser, OrgJoinCodes, User, generate_unique_key, Role, Member_role_in_org
 from user.models import Notice, OrganizationUser, MemberUser, OrgJoinCodes, User, generate_unique_key, Role
 
 
@@ -34,7 +35,22 @@ class MemberSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         join_code = self.context.pop("join_code")
         member = self.Meta.model.objects.create_user(**validated_data, join_code=join_code)
+        try:
+            org_role = Role.objects.get(id=self.context.get("role_id"))
+            Member_role_in_org.objects.create(member=member, role=org_role)
+        except Exception as error:
+            member.delete()
+            raise Exception(str(error))
         return member
+
+    def to_representation(self, instance):
+        output = {
+            "id": instance.id,
+            "name": instance.first_name,
+            "email": instance.email,
+            "role_in_org": instance.role_in_org.role.name.title()
+        }
+        return output
 
     def update(self, instance, validated_data):
         instance = super().update(instance, validated_data)
@@ -46,11 +62,17 @@ class MemberSerializer(serializers.ModelSerializer):
             except OrgJoinCodes.DoesNotExist:
                 return instance
             instance.member = join_obj.user
+
+        if self.context.get("role_id"):
+            try:
+                old_role = instance.role_in_org.role
+                instance.role_in_org.delete()
+                new_role = Role.objects.get(id=self.context.get("role_id"))
+                Member_role_in_org.objects.create(member=instance, role=new_role)
+            except Role.DoesNotExist:
+                self.context["error_message"] = "Role requested is not registed with the org."
+                Member_role_in_org.objects.create(member=instance, role=old_role)
+            except Exception as error:
+                self.context["error_message"] = str(error)
+                Member_role_in_org.objects.create(member=instance, role=old_role)
         return instance
-
-
-class NoticeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Notice
-        fields = ('id', 'title', 'content', 'published_at')
-        read_only_fields = ('id', 'published_at')

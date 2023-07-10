@@ -56,43 +56,52 @@ class OrgRoleViewAPI(generics.ListAPIView):
         return Role.objects.filter(organization=user)
 
 
-class CustomPagination(PageNumberPagination):
-    page_size = 10
-    page_size_query_param = 'page_size'
-    max_page_size = 100
-    
+class JoinRequestAPI(APIView):
+    def get(self, request):
+        page = request.GET.get('page', 0)
+        members = MemberUser.objects.filter(is_active=False, member=request.user).all()[page*10: page*10+10]
+        count = MemberUser.objects.filter(is_active=False, member=request.user).count()
+        srlz = MemberSerializer(members, many=True)
+        return Response({"members": srlz.data, "current_page": page, "per_page": 10, "total_page": count})
+
+    def post(self, request):
+        try:
+            members_ids = request.data.get("members")
+            process_type = request.data.get("process_type", "reject")
+            if process_type == "accept":
+                process_type = True
+            else:
+                process_type = False
+            issues = []
+            for member_id in members_ids:
+                try:
+                    member = MemberUser.objects.get(id=member_id)
+                    if not process_type:
+                        member.delete()
+                    else:
+                        member.is_active = process_type
+                        member.is_staff = process_type
+                        member.save()
+                except MemberUser.DoesNotExist:
+                    issues.append({
+                        "member_id": member_id,
+                        "error": "Member does not exist"
+                    })
+            return Response({"msg": "Processed members!", "issues": issues})
+        except Exception as error:
+            return Response({"error": str(error)}, status=500)
+
+
+class OrgMemberAPI(APIView):
+    def get(self, request):
+        page = request.GET.get('page', 0)
+        members = MemberUser.objects.filter(is_active=True, is_staff=True, member=request.user)[page*10: page*10+10]
+        count = MemberUser.objects.filter(is_active=True, member=request.user).count()
+        srlz = MemberSerializer(members, many=True)
+        return Response({"members": srlz.data, "current_page": page, "per_page": 10, "total_page": count})
+
 
 class MemberListAPI(generics.ListAPIView):
     serializer_class = MemberSerializer
     queryset = MemberUser.objects.all()
     pagination_class = CustomPagination
-
-
-class RemoveMemberAPI(APIView):
-    permission_classes = [IsOrgAuthenticated]
-
-    def delete(self, request, member_id):
-        member = MemberUser.objects.get(id=member_id)
-        member.delete()
-        return Response({"msg": "Member %s deleted" % member_id})
-
-
-class NoticeListAPI(generics.ListCreateAPIView):
-    serializer_class = NoticeSerializer
-    permission_classes = [IsOrgAuthenticated]
-
-    def get_queryset(self):
-        user = self.request.user
-        return Notice.objects.filter(organization=user.organization)
-
-    def perform_create(self, serializer):
-        serializer.save(organization=self.request.user.organization)
-
-
-class NoticeDetailAPI(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = NoticeSerializer
-    permission_classes = [IsOrgAuthenticated]
-
-    def get_queryset(self):
-        user = self.request.user
-        return Notice.objects.filter(organization=user.organization)
