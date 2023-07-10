@@ -115,11 +115,13 @@ class Role(models.Model):
     class Meta:
         unique_together = ('organization', 'name')
 
+
 class Notice(models.Model):
     organization = models.ForeignKey(OrganizationUser, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     content = models.TextField()
     published_at = models.DateTimeField(auto_now_add=True)
+
 
 class Member_role_in_org(models.Model):
     member = models.OneToOneField(MemberUser, on_delete=models.CASCADE, related_name="role_in_org")

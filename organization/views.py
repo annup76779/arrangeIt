@@ -5,8 +5,7 @@ from rest_framework.views import APIView
 from organization.serializer import OrgRoleSerializer
 from user.customer_permission import IsOrgAuthenticated
 from user.models import MemberUser, Notice, Role
-from user.serializer import MemberSerializer, NoticeSerializer
-from rest_framework.pagination import PageNumberPagination
+from user.serializer import MemberSerializer
 
 
 class OrgRolesAPI(APIView):
@@ -100,8 +99,3 @@ class OrgMemberAPI(APIView):
         srlz = MemberSerializer(members, many=True)
         return Response({"members": srlz.data, "current_page": page, "per_page": 10, "total_page": count})
 
-
-class MemberListAPI(generics.ListAPIView):
-    serializer_class = MemberSerializer
-    queryset = MemberUser.objects.all()
-    pagination_class = CustomPagination
