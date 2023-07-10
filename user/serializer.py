@@ -1,6 +1,5 @@
 from rest_framework import serializers
 
-from user.models import OrganizationUser, MemberUser, OrgJoinCodes, User, generate_unique_key, Role, Member_role_in_org
 from user.models import Notice, OrganizationUser, MemberUser, OrgJoinCodes, User, generate_unique_key, Role
 
 
