@@ -10,5 +10,5 @@ def get_tokens_for_user(user):
         'expires_in': refresh.lifetime,
         "email": user.email,
         "name": user.first_name,
-        "join_code": user.join_code if user.role == 1 else ""
+        "join_code": user.join_code.join_code if user.role == 1 else ""
     }
