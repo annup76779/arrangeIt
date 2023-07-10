@@ -54,3 +54,15 @@ class ManagerRegisterView(APIView):
             return Response({"error": str(error)}, status=500)
 
 
+class RolesOfOrgByCode(APIView):
+    def get(self, request, join_code):
+        try:
+            org = OrgJoinCodes.objects.get(join_code=join_code)
+            roles = [
+                {'id': role.id, 'name': role.name}
+                for role in org.user.created_role.all()
+            ]
+            return Response({"roles": roles})
+        except Exception as error:
+            return Response({"error": str(error)}, status=500)
+

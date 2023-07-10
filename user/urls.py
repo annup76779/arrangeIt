@@ -8,6 +8,8 @@ urlpatterns = [
 
     path("org/register", views.OrganizerRegisterView.as_view()),
     path("member/register", views.ManagerRegisterView.as_view()),
+
+    path("get_join_code/<str:join_code>", views.RolesOfOrgByCode.as_view())
 ]
 
 
