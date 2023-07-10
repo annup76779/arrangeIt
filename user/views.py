@@ -27,7 +27,6 @@ class LoginAPI(APIView):
         try:
             email = request.data.get('email')
             password = request.data.get('password')
-
             try:
                 user = User.objects.get(email=email, role__in=[1, 2])
                 if user.check_password(password):
@@ -44,7 +43,8 @@ class LoginAPI(APIView):
 class ManagerRegisterView(APIView):
     def post(self, request):
         try:
-            srlz = MemberSerializer(data=request.data, context={"join_code": request.data.get("join_code")})
+            srlz = MemberSerializer(data=request.data, context={"join_code": request.data.get("join_code"),
+                                                                "role_id": request.data.get("role_id")})
             if srlz.is_valid():
                 member_obj = srlz.save()
                 return Response({"msg": "Successfully joined organization - `%s` as member." % member_obj.member.first_name})

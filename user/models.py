@@ -79,20 +79,18 @@ class OrgJoinCodes(models.Model):
 class MemberManager(UserManager):
     def create_user(self, email, password, **extra_fields):
         try:
+            extra_fields.setdefault("is_active", False)
             join_obj = OrgJoinCodes.objects.get(join_code=extra_fields.pop('join_code'))
             user = self.model(email=email, member=join_obj.user, **extra_fields)
             user.set_password(password)
             user.save(self._db)
-
-            # manage Roles here.
-
             return user
         except OrgJoinCodes.DoesNotExist:
             raise Exception("No organization with provided join-code is available.")
 
     def get_queryset(self, *args, **kwargs):
         result = super().get_queryset(*args, **kwargs)
-        return result.filter(role=User.Role.MEMBER)
+        return result.filter(role=User.Role.MEMBER).exclude(member=None)
 
 
 class MemberUser(User):
@@ -116,3 +114,8 @@ class Role(models.Model):
 
     class Meta:
         unique_together = ('organization', 'name')
+
+
+class Member_role_in_org(models.Model):
+    member = models.OneToOneField(MemberUser, on_delete=models.CASCADE, related_name="role_in_org")
+    role = models.ForeignKey(Role, on_delete=models.CASCADE, related_name="members")
