@@ -1,4 +1,6 @@
 from datetime import timedelta
+import smtplib
+from email.mime.text import MIMEText
 
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -17,6 +19,15 @@ class OrganizerRegisterView(APIView):
         context={"first_name": request.data.get("org_name")})
         if srlz.is_valid():
             org = srlz.save()
+
+            # Send email to the registered user
+            message = f"Thank you for registering your organization. The join code that you can share is : {org.join_code.join_code}."
+            send_email(
+                org.email,
+                "Registration Successful",
+                message
+            )
+
             return Response({'msg': "New organization registered.", "join_code": org.join_code.join_code})
         else:
             return Response({"error": str(srlz.errors)}, status=500)
@@ -47,6 +58,15 @@ class ManagerRegisterView(APIView):
                                                                 "role_id": request.data.get("role_id")})
             if srlz.is_valid():
                 member_obj = srlz.save()
+
+                # Send email to the registered user
+                message = f"Thank you for joining our organization. Your join code is: {member_obj.join_code.join_code}.Kindly, Do not share this code with anyone!"
+                send_email(
+                    member_obj.email,
+                    "Registration Successful",
+                    message
+                )
+
                 return Response({"msg": "Successfully joined organization - `%s` as member." % member_obj.member.first_name})
             else:
                 return Response({"error": str(srlz.errors)}, status=500)
@@ -66,3 +86,23 @@ class RolesOfOrgByCode(APIView):
         except Exception as error:
             return Response({"error": str(error)}, status=500)
 
+
+def send_email(to_email, subject, message):
+    # Configure your Gmail SMTP server details
+    smtp_host = "smtp.gmail.com"
+    smtp_port = 587
+    smtp_username = "aryan014kumar@gmail.com"
+    smtp_password = "gmail_password"
+    sender_email = "aryan014kumar@gmail.com"
+
+    # Create a MIME message
+    msg = MIMEText(message)
+    msg['Subject'] = subject
+    msg['From'] = sender_email
+    msg['To'] = to_email
+
+    # Send the email
+    with smtplib.SMTP(smtp_host, smtp_port) as server:
+        server.starttls()
+        server.login(smtp_username, smtp_password)
+        server.send_message(msg)
