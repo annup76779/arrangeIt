@@ -87,7 +87,7 @@ class RolesOfOrgByCode(APIView):
 
 
 def send_email(to_email, subject, message):
-    # Configure your Gmail SMTP server details
+    # Configure Gmail SMTP server details
     smtp_host = "smtp.gmail.com"
     smtp_port = 587
     smtp_username = "annup76779@gmail.com"
