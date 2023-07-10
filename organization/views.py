@@ -4,8 +4,8 @@ from rest_framework.views import APIView
 
 from organization.serializer import OrgRoleSerializer
 from user.customer_permission import IsOrgAuthenticated
-from user.models import MemberUser, Role
-from user.serializer import MemberSerializer
+from user.models import MemberUser, Notice, Role
+from user.serializer import MemberSerializer, NoticeSerializer
 from rest_framework.pagination import PageNumberPagination
 
 
@@ -66,3 +66,33 @@ class MemberListAPI(generics.ListAPIView):
     serializer_class = MemberSerializer
     queryset = MemberUser.objects.all()
     pagination_class = CustomPagination
+
+
+class RemoveMemberAPI(APIView):
+    permission_classes = [IsOrgAuthenticated]
+
+    def delete(self, request, member_id):
+        member = MemberUser.objects.get(id=member_id)
+        member.delete()
+        return Response({"msg": "Member %s deleted" % member_id})
+
+
+class NoticeListAPI(generics.ListCreateAPIView):
+    serializer_class = NoticeSerializer
+    permission_classes = [IsOrgAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Notice.objects.filter(organization=user.organization)
+
+    def perform_create(self, serializer):
+        serializer.save(organization=self.request.user.organization)
+
+
+class NoticeDetailAPI(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = NoticeSerializer
+    permission_classes = [IsOrgAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Notice.objects.filter(organization=user.organization)

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from user.models import OrganizationUser, MemberUser, OrgJoinCodes, User, generate_unique_key, Role
+from user.models import Notice, OrganizationUser, MemberUser, OrgJoinCodes, User, generate_unique_key, Role
 
 
 class OrgSerializer(serializers.ModelSerializer):
@@ -47,3 +47,10 @@ class MemberSerializer(serializers.ModelSerializer):
                 return instance
             instance.member = join_obj.user
         return instance
+
+
+class NoticeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notice
+        fields = ('id', 'title', 'content', 'published_at')
+        read_only_fields = ('id', 'published_at')
