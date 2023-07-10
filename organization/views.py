@@ -58,6 +58,7 @@ class OrgRoleViewAPI(generics.ListAPIView):
 
 class JoinRequestAPI(APIView):
     permission_classes = [IsOrgAuthenticated]
+
     def get(self, request):
         page = request.GET.get('page', 0)
         members = MemberUser.objects.filter(is_active=False, member=request.user).all()[page*10: page*10+10]
@@ -95,12 +96,21 @@ class JoinRequestAPI(APIView):
 
 class OrgMemberAPI(APIView):
     permission_classes = [IsOrgAuthenticated]
+
     def get(self, request):
         page = request.GET.get('page', 0)
         members = MemberUser.objects.filter(is_active=True, is_staff=True, member=request.user)[page*10: page*10+10]
         count = MemberUser.objects.filter(is_active=True, member=request.user).count()
         srlz = MemberSerializer(members, many=True)
         return Response({"members": srlz.data, "current_page": page, "per_page": 10, "total_page": count})
+
+    def delete(self, request, id):
+        try:
+            member = MemberUser.objects.get(id=id)
+            member.delete()
+            return Response({"msg": "Deleted"})
+        except MemberUser.DoesNotExist:
+            return Response({"error": "No such member"})
 
 
 class NoticeListAPI(generics.ListCreateAPIView):

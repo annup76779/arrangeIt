@@ -15,5 +15,6 @@ urlpatterns = [
     path("process_join_request", views.JoinRequestAPI.as_view()),  # POST ["accept", "reject"]
 
     path("member_list", views.OrgMemberAPI.as_view()),
+    path("member/<int:id>", views.OrgMemberAPI.as_view()),
 ]
 
