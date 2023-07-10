@@ -38,8 +38,8 @@ class ScheduleAPIView(generics.ListCreateAPIView):
 
     def create(self, request, *args, **kwargs):
         data = dict(**request.data)
-        data['start'] = datetime.strptime(data["start"], '%a %b %d %Y %H:%M:%S')
-        data['end'] = datetime.strptime(data["end"], '%a %b %d %Y %H:%M:%S')
+        data['start'] = datetime.strptime(data["start"], '%Y-%m-%dT%H:%M:%S%z')
+        data['end'] = datetime.strptime(data["end"], '%Y-%m-%dT%H:%M:%S%z')
         data.update({"member": request.user.pk})
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)

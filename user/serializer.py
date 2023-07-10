@@ -1,3 +1,6 @@
+from datetime import timedelta, datetime
+
+from pytz import timezone
 from rest_framework import serializers
 
 from user.models import Notice, OrganizationUser, MemberUser, OrgJoinCodes, User, generate_unique_key, Role, \
@@ -44,11 +47,21 @@ class MemberSerializer(serializers.ModelSerializer):
         return member
 
     def to_representation(self, instance):
+        date = datetime.now(tz=timezone("Asia/Kolkata"))
+        start = datetime(date.year, date.month, date.day, tzinfo=timezone("Asia/Kolkata"))
+        end = start + timedelta(days=1)
+        schedule = instance.schedule.filter(start__in=[start, end]).all()
+        if schedule:
+            status = True
+        else:
+            status = False
+
         output = {
             "id": instance.id,
             "name": instance.first_name,
             "email": instance.email,
-            "role_in_org": instance.role_in_org.role.name.title()
+            "role_in_org": instance.role_in_org.role.name.title(),
+            "status": status
         }
         return output
 
