@@ -16,5 +16,8 @@ urlpatterns = [
 
     path("member_list", views.OrgMemberAPI.as_view()),
     path("member/<int:id>", views.OrgMemberAPI.as_view()),
+
+    path('notices/', views.NoticeListAPI.as_view(), name='notice-list'),
+    path('notices/<int:pk>/', views.NoticeDetailAPI.as_view(), name='notice-detail'),
 ]
 

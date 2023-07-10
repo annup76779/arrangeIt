@@ -119,10 +119,10 @@ class NoticeListAPI(generics.ListCreateAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        return Notice.objects.filter(organization=user.organization)
+        return Notice.objects.filter(organization=user)
 
     def perform_create(self, serializer):
-        serializer.save(organization=self.request.user.organization)
+        serializer.save(organization=self.request.user)
 
 
 class NoticeDetailAPI(generics.RetrieveUpdateDestroyAPIView):
@@ -131,4 +131,4 @@ class NoticeDetailAPI(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        return Notice.objects.filter(organization=user.organization)
+        return Notice.objects.filter(organization=user)
